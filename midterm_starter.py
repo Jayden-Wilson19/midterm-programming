@@ -1,5 +1,6 @@
 import time
 import random
+import statistics
 
 # =======================================================
 # DO NOT MODIFY THE ALGORITHM IMPLEMENTATIONS
@@ -28,27 +29,75 @@ def find_duplicates_fast(data):
 # YOUR TASK: FIX THE BENCHMARKING SCRIPT BELOW
 # =======================================================
 
-def flawed_benchmark():
+def benchmark_duplicates():
     """
-    This benchmarking function contains several methodological errors.
-    Rewrite this function to properly and fairly compare the two algorithms to demonstrate their scaling behavior.
+    Empirically compare the performance of the two duplicate-checking algorithms.
+
+    Both algorithms are tested on identical inputs at increasing sizes.
+    Each input is timed over multiple trials, and the median time is reported for each algorithm.
     """
-    print("Running flawed benchmark...")
-    
-    n = 1000
-    
-    start_time = time.time()
-    data1 = [random.randint(i, 10000) for i in range(n)]
-    find_duplicates_slow(data1)
-    end_time = time.time()
-    print(f"Slow algorithm took: {end_time - start_time} seconds")
-    
-    start_time_2 = time.time()
-    data2 = [random.randint(i, 10000) for i in range(n)]
-    find_duplicates_fast(data2)
-    end_time_2 = time.time()
-    print(f"Fast algorithm took: {end_time_2 - start_time_2} seconds")
+    sizes = (250, 500, 1000, 2000, 3000)
+    trials = 7
+    rng = random.Random(0)
+
+    algorithms = (
+        ("slow", find_duplicates_slow),
+        ("fast", find_duplicates_fast),
+    )
+
+    print("Duplicate-checking benchmark")
+    print("Median of 7 trials")
+    print()
+    print(f"{'n':>6} {'slow (s)':>12} {'fast (s)':>12} {'speedup':>10}")
+    print("-" * 44)
+
+    for size in sizes:
+        # Create one identical, duplicate-free input for both algorithms.
+        data = list(range(size))
+        rng.shuffle(data)
+
+        timings = {
+            "slow": [],
+            "fast": []
+            }
+
+        for trial in range(trials):
+            # Alternate execution order to reduce systematic timing bias.
+            if trial % 2 == 0:
+                ordered_algorithms = algorithms
+            else:
+                ordered_algorithms = algorithms[::-1]
+
+            for name, algorithm in ordered_algorithms:
+                start = time.perf_counter()
+                result = algorithm(data)
+                elapsed = time.perf_counter() - start
+
+                # Verify that both algorithms produce the expected result.
+                if result is not False:
+                    raise AssertionError(
+                        f"{name} returned {result!r} for a "
+                        "duplicate-free input"
+                    )
+                
+                timings[name].append(elapsed)
+
+        slow_median = statistics.median(timings["slow"])
+        fast_median = statistics.median(timings["fast"])
+
+        speedup = (
+            slow_median / fast_median 
+            if fast_median > 0
+            else float("inf")
+        )
+
+        print(
+            f"{size:>6} "
+            f"{slow_median:>12.6f} " 
+            f"{fast_median:>12.6f} "
+            f"{speedup:>9.1f}x"
+        )
 
 
 if __name__ == "__main__":
-    flawed_benchmark()
+    benchmark_duplicates()
