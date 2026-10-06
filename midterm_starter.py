@@ -1,6 +1,7 @@
 import time
 import random
 import statistics
+import matplotlib.pyplot as plt
 
 # =======================================================
 # DO NOT MODIFY THE ALGORITHM IMPLEMENTATIONS
@@ -39,6 +40,7 @@ def benchmark_duplicates():
     sizes = (250, 500, 1000, 2000, 3000)
     trials = 7
     rng = random.Random(0)
+    results = []
 
     algorithms = (
         ("slow", find_duplicates_slow),
@@ -98,6 +100,35 @@ def benchmark_duplicates():
             f"{speedup:>9.1f}x"
         )
 
+        results.append((size, slow_median, fast_median))
+
+    sizes_plot = [row[0] for row in results]
+    slow_times = [row[1] for row in results]
+    fast_times = [row[2] for row in results]
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(
+        sizes_plot,
+        slow_times,
+        marker="o",
+        label="Slow algorithm (O(n^2))"
+    )
+    plt.plot(
+        sizes_plot,
+        fast_times,
+        marker="o",
+        label="Fast algorithm (O(n))"
+    )
+
+    plt.xlabel("Input size (n)")
+    plt.ylabel("Median running time (seconds)")
+    plt.title("Empirical Comparison of Duplicate-Checking Algorithms")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+
+    plt.savefig("results.png", dpi=200)
+    plt.show()
 
 if __name__ == "__main__":
     benchmark_duplicates()

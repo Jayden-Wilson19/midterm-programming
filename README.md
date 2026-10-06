@@ -26,7 +26,7 @@ The file also contains a `flawed_benchmark()` function. The developer who wrote 
 
 - Small inputs can make timing noise significant: For fast algorithms, execution times on small inputs may be short that normal system fluctuations dominate the measurement. 
 
+- Only duplicate-free inputs were tested: This only tests the worst-case behavior for algorithms that can stop when they find a duplicate. The revised benchmark I created extends to include both duplicate-free and duplicate-containing cases.
+
 2. Run the empirical comparion and plot the results using a plotting library of your choice (e.g., `matplotlib`, `seaborn`, etc.). Include the plot in your submission called `results.png`. Be sure to label your axes and include a legend.
-
-
 
